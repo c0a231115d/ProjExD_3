@@ -167,11 +167,14 @@ class Explosion:
         self.rct = self.images[self.index].get_rect()
         self.rct.center = center
         self.life = 20
+
     def update(self, screen: pg.Surface):
         if self.life > 0:
             self.index = (self.index + 1) % len(self.images)
             screen.blit(self.images[self.index], self.rct)
             self.life -= 1
+
+
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
@@ -213,7 +216,6 @@ def main():
                         beams[i], bombs[j] = None, None
                         bird.change_img(6, screen)
                         pg.display.update()
-                        #time.sleep(1)
                         score.score += 1
 
         beams = [beam for beam in beams if beam is not None]
