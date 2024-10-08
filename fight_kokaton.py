@@ -156,7 +156,22 @@ class Score:
         score_Surface = self.img.get_rect(center = self.pos)
         screen.blit(self.img, score_Surface)
 
-
+class Explosion:
+    def __init__(self,center:tuple[int,int]):
+        original = pg.image.load("fig/explosion.gif").convert_alpha()
+        flipped_h = pg.transform.flip(original, True, False)
+        flipped_v = pg.transform.flip(original, False, True)
+        flipped_hv = pg.transform.flip(original, True, True)
+        self.images = [original, flipped_h, flipped_v, flipped_hv]
+        self.index = 0
+        self.rct = self.images[self.index].get_rect()
+        self.rct.center = center
+        self.life = 20
+    def update(self, screen: pg.Surface):
+        if self.life > 0:
+            self.index = (self.index + 1) % len(self.images)
+            screen.blit(self.images[self.index], self.rct)
+            self.life -= 1
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
@@ -168,6 +183,7 @@ def main():
     clock = pg.time.Clock()
     score = Score()
     beams = []
+    explosions = []
     tmr = 0
     while True:
         for event in pg.event.get():
@@ -193,6 +209,7 @@ def main():
             for i, beam in enumerate(beams):
                 if beam is not None and hasattr(beam, 'rct') and beam.rct.colliderect(bomb.rct):
                     if beam.rct.colliderect(bomb.rct):  # ビームと爆弾が衝突したら
+                        explosions.append(Explosion(bomb.rct.center))
                         beams[i], bombs[j] = None, None
                         bird.change_img(6, screen)
                         pg.display.update()
@@ -208,12 +225,18 @@ def main():
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
+
         for beam in beams:
             beam.update(screen) 
+
         for bomb in bombs:
             bomb.update(screen)
 
         score.update(screen)
+        for explosion in explosions:
+            explosion.update(screen)
+            if explosion.life <= 0:
+                explosions.remove(explosion)
 
         pg.display.update()
         tmr += 1
@@ -224,4 +247,4 @@ if __name__ == "__main__":
     pg.init()
     main()
     pg.quit()
-    sys.exit()
+    sys.exit()  
